@@ -6,26 +6,77 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+
+
     <groupId>com.airline</groupId>
     <artifactId>airline-passenger-system</artifactId>
     <version>1.0.0</version>
 
-    <!-- Parent Project -->
     <packaging>pom</packaging>
 
     <name>Airline Passenger Service System</name>
-    <description>Enterprise Airline Passenger Service System using Spring Boot Microservices</description>
 
-    <!-- Child modules will be added here -->
+    <description>
+        Enterprise Airline Passenger Service System using Spring Boot Microservices
+    </description>
+
     <modules>
+        <module>discovery-server</module>
     </modules>
 
     <properties>
         <java.version>17</java.version>
         <spring.boot.version>3.5.3</spring.boot.version>
         <spring.cloud.version>2025.0.0</spring.cloud.version>
-        <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencyManagement>
+
+        <dependencies>
+
+            <!-- Spring Boot BOM -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Cloud BOM -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+    <build>
+        <pluginManagement>
+            <plugins>
+
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring.boot.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.14.0</version>
+                    <configuration>
+                        <release>${java.version}</release>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
 
 </project>
