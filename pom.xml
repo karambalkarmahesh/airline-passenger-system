@@ -19,6 +19,7 @@
         <module>discovery-server</module>
         <module>config-server</module>
         <module>api-gateway</module>
+        <module>passenger-service</module>
     </modules>
 
     <properties>
