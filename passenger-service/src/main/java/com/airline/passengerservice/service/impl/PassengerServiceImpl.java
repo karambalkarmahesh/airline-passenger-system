@@ -74,15 +74,26 @@ public class PassengerServiceImpl implements PassengerService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Passenger not found with id: " + id));
 
+
+        if (passengerRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateResourceException(
+                    "Passenger already exists with email: " + request.getEmail()
+            );
+        }
+
+        if (passengerRepository.existsByPassportNumber(
+                request.getPassportNumber())) {
+
+            throw new DuplicateResourceException(
+                    "Passenger already exists with passport number: "
+                            + request.getPassportNumber()
+            );
+        }
         // Update fields
-        existingPassenger.setFirstName(request.getFirstName());
-        existingPassenger.setLastName(request.getLastName());
-        existingPassenger.setEmail(request.getEmail());
-        existingPassenger.setPhoneNumber(request.getPhoneNumber());
-        existingPassenger.setPassportNumber(request.getPassportNumber());
-        existingPassenger.setNationality(request.getNationality());
-        existingPassenger.setDateOfBirth(request.getDateOfBirth());
-        existingPassenger.setGender(request.getGender());
+        passengerMapper.updatePassengerFromRequest(
+                request,
+                existingPassenger
+        );
 
         // Update audit field
         existingPassenger.setUpdatedAt(LocalDateTime.now());
