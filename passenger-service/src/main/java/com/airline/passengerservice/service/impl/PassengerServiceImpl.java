@@ -1,7 +1,11 @@
 package com.airline.passengerservice.service.impl;
 
+import com.airline.passengerservice.dto.PassengerRequestDTO;
+import com.airline.passengerservice.dto.PassengerResponseDTO;
 import com.airline.passengerservice.entity.Passenger;
+import com.airline.passengerservice.exception.DuplicateResourceException;
 import com.airline.passengerservice.exception.ResourceNotFoundException;
+import com.airline.passengerservice.mapper.PassengerMapper;
 import com.airline.passengerservice.repository.PassengerRepository;
 import com.airline.passengerservice.service.PassengerService;
 import org.springframework.stereotype.Service;
@@ -14,48 +18,90 @@ public class PassengerServiceImpl implements PassengerService {
 
     private final PassengerRepository passengerRepository;
 
-    public PassengerServiceImpl(PassengerRepository passengerRepository) {
+    private final PassengerMapper passengerMapper;
+
+
+
+    public PassengerServiceImpl(PassengerRepository passengerRepository, PassengerMapper passengerMapper) {
         this.passengerRepository = passengerRepository;
+        this.passengerMapper = passengerMapper;
     }
 
     @Override
-    public Passenger createPassenger(Passenger passenger) {
+    public PassengerResponseDTO createPassenger(PassengerRequestDTO request) {
+        if(passengerRepository.existsByPassportNumber(request.getPassportNumber())){
+            throw new DuplicateResourceException(
+                    "Passenger already exists with passport number: "
+                            + request.getPassportNumber()
+            );
+        }
+        if(passengerRepository.existsByEmail(request.getEmail())){
+            throw new DuplicateResourceException(
+                    "Passenger already exists with email: "
+                            + request.getEmail()
+            );
+        }
+        Passenger passenger = passengerMapper.toEntity(request);
+
         passenger.setCreatedAt(LocalDateTime.now());
         passenger.setUpdatedAt(LocalDateTime.now());
-        return passengerRepository.save(passenger);
+        Passenger savedPassenger = passengerRepository.save(passenger);
+        return passengerMapper.toResponseDTO(savedPassenger);
     }
 
     @Override
-    public Passenger getPassengerById(Long id) {
-        return passengerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
-                "Passenger not found with id: "+id)
+    public PassengerResponseDTO getPassengerById(Long id) {
+
+        Passenger passenger = passengerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(
+                "Passenger not found with id: " + id)
         );
+        return passengerMapper.toResponseDTO(passenger);
     }
 
     @Override
-    public List<Passenger> getAllPassengers() {
-        return passengerRepository.findAll();
+    public List<PassengerResponseDTO> getAllPassengers() {
+
+        List<Passenger> allPassenger = passengerRepository.findAll();
+
+        return passengerMapper.toResponseDTO(allPassenger);
     }
 
     @Override
-    public Passenger updatePassengerById(Long id, Passenger passenger) {
-        Passenger existingPassenger = getPassengerById(id);
-        existingPassenger.setEmail(passenger.getEmail());
-        existingPassenger.setFirstName(passenger.getFirstName());
-        existingPassenger.setLastName(passenger.getLastName());
-        existingPassenger.setNationality(passenger.getNationality());
-        existingPassenger.setDateOfBirth(passenger.getDateOfBirth());
-        existingPassenger.setPassportNumber(passenger.getPassportNumber());
-        existingPassenger.setPhoneNumber(passenger.getPhoneNumber());
+    public PassengerResponseDTO updatePassengerById(Long id, PassengerRequestDTO request) {
+
+        // Fetch existing passenger from database
+        Passenger existingPassenger = passengerRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Passenger not found with id: " + id));
+
+        // Update fields
+        existingPassenger.setFirstName(request.getFirstName());
+        existingPassenger.setLastName(request.getLastName());
+        existingPassenger.setEmail(request.getEmail());
+        existingPassenger.setPhoneNumber(request.getPhoneNumber());
+        existingPassenger.setPassportNumber(request.getPassportNumber());
+        existingPassenger.setNationality(request.getNationality());
+        existingPassenger.setDateOfBirth(request.getDateOfBirth());
+        existingPassenger.setGender(request.getGender());
+
+        // Update audit field
         existingPassenger.setUpdatedAt(LocalDateTime.now());
-        return passengerRepository.save(existingPassenger);
+
+        // Save updated entity
+        Passenger updatedPassenger = passengerRepository.save(existingPassenger);
+
+        // Convert Entity to Response DTO
+        return passengerMapper.toResponseDTO(updatedPassenger);
     }
 
 
 
     @Override
     public void deletePassenger(Long id) {
-        Passenger passenger = getPassengerById(id);
-        passengerRepository.delete(passenger);
+        Passenger  existingPassenger= passengerRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Passenger not found with id: " + id));
+
+        passengerRepository.delete(existingPassenger);
     }
 }
