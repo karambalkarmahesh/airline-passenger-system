@@ -124,8 +124,8 @@ public class PassengerController {
             )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePassenger(@PathVariable("id") Long id){
+    public ResponseEntity<Void> deletePassenger(@PathVariable("id") Long id) {
         passengerService.deletePassenger(id);
-        return  ResponseEntity.status(HttpStatus.NO_CONTENT).body("Successfully deleted passenger with id: "+id);
+        return ResponseEntity.noContent().build();
     }
 }
