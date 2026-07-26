@@ -21,6 +21,7 @@ class PassengerRepositoryTest {
     @Autowired
     private PassengerRepository repository;
 
+
     private Passenger createPassenger() {
         Passenger passenger = new Passenger();
 
