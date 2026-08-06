@@ -1,10 +1,13 @@
 package com.airline.authservice.service.impl;
 
+import com.airline.authservice.dto.LoginRequestDTO;
+import com.airline.authservice.dto.LoginResponseDTO;
 import com.airline.authservice.dto.RegisterRequestDTO;
 import com.airline.authservice.dto.RegisterResponseDTO;
 import com.airline.authservice.entity.User;
 import com.airline.authservice.enums.Role;
 import com.airline.authservice.exception.DuplicateResourceException;
+import com.airline.authservice.exception.InvalidCredentialsException;
 import com.airline.authservice.mapper.UserMapper;
 import com.airline.authservice.repository.UserRepository;
 import com.airline.authservice.service.UserService;
@@ -43,5 +46,32 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(user);
 
         return userMapper.toResponse(savedUser);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LoginResponseDTO login(LoginRequestDTO request) {
+
+        String email = request.getEmail()
+                .trim()
+                .toLowerCase();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new InvalidCredentialsException("Invalid email or password"));
+
+        boolean passwordMatches = passwordEncoder.matches(request.getPassword(), user.getPassword());
+
+        if(!passwordMatches){
+            throw new InvalidCredentialsException("Invalid password");
+        }
+
+        return LoginResponseDTO.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .message("Login Successfully")
+                .build();
     }
 }
