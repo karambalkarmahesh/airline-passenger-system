@@ -20,6 +20,7 @@
         <module>config-server</module>
         <module>api-gateway</module>
         <module>passenger-service</module>
+        <module>auth-service</module>
     </modules>
 
     <properties>
