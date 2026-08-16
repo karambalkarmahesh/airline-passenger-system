@@ -21,6 +21,7 @@
         <module>api-gateway</module>
         <module>passenger-service</module>
         <module>auth-service</module>
+        <module>flight-service</module>
     </modules>
 
     <properties>
