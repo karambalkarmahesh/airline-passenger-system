@@ -10,6 +10,7 @@ import com.airline.authservice.exception.DuplicateResourceException;
 import com.airline.authservice.exception.InvalidCredentialsException;
 import com.airline.authservice.mapper.UserMapper;
 import com.airline.authservice.repository.UserRepository;
+import com.airline.authservice.security.JwtService;
 import com.airline.authservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     @Transactional
@@ -65,13 +67,19 @@ public class UserServiceImpl implements UserService {
             throw new InvalidCredentialsException("Invalid password");
         }
 
+        String token = jwtService.generateToken(
+                user.getEmail(),
+                user.getRole().name()
+        );
+
         return LoginResponseDTO.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .message("Login Successfully")
+                .accessToken(token)
+                .tokenType("Bearer")
                 .build();
     }
 }

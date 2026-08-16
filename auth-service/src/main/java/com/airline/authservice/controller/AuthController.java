@@ -34,4 +34,14 @@ public class AuthController {
 
         return ResponseEntity.ok(userService.login(requestDTO));
     }
+
+    @GetMapping("/profile")
+    public ResponseEntity<String> profile() {
+        return ResponseEntity.ok("JWT authentication successful");
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<String> adminOnly() {
+        return ResponseEntity.ok("Admin access successful");
+    }
 }
