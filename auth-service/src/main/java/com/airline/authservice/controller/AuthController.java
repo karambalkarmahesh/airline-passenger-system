@@ -1,5 +1,7 @@
 package com.airline.authservice.controller;
 
+import com.airline.authservice.dto.LoginRequestDTO;
+import com.airline.authservice.dto.LoginResponseDTO;
 import com.airline.authservice.dto.RegisterRequestDTO;
 import com.airline.authservice.dto.RegisterResponseDTO;
 import com.airline.authservice.service.UserService;
@@ -25,5 +27,21 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO requestDTO){
+
+        return ResponseEntity.ok(userService.login(requestDTO));
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<String> profile() {
+        return ResponseEntity.ok("JWT authentication successful");
+    }
+
+    @GetMapping("/admin")
+    public ResponseEntity<String> adminOnly() {
+        return ResponseEntity.ok("Admin access successful");
     }
 }
